@@ -1,5 +1,6 @@
 const ethers = require("ethers");
 const accounts = [];
+var {pool} = require("./db");
 
 const getDeployerWallet = ({ config }) => () => {
   const provider = new ethers.providers.InfuraProvider(config.network, config.infuraApiKey);
@@ -12,12 +13,13 @@ const createWallet = () => async () => {
   const provider = new ethers.providers.InfuraProvider("kovan", process.env.INFURA_API_KEY);
   // This may break in some environments, keep an eye on it
   const wallet = ethers.Wallet.createRandom().connect(provider);
-  accounts.push({
+  /*accounts.push({
     address: wallet.address,
     privateKey: wallet.privateKey,
-  });
+  });*/
+  const id = await insertWallet(wallet.address, wallet.privateKey);
   const result = {
-    id: accounts.length,
+    id: id,
     address: wallet.address,
     privateKey: wallet.privateKey,
   };
@@ -25,17 +27,18 @@ const createWallet = () => async () => {
 };
 
 const getWalletsData = () => () => {
-  return accounts;
+  return retrieveWallets();
 };
 
 const getWalletData = () => index => {
-  return accounts[index - 1];
+  let wallet = retrieveWallet(index);
+  return wallet;
 };
 
-const getWallet = ({}) => index => {
+const getWallet = ({}) => async index => {
   const provider = new ethers.providers.InfuraProvider("kovan", process.env.INFURA_API_KEY);
-
-  return new ethers.Wallet(accounts[index - 1].privateKey, provider);
+  let wallet = await retrieveWallet(index);
+  return new ethers.Wallet(wallet.rows["0"].privatekey, provider);
 };
 
 module.exports = ({ config }) => ({
@@ -45,3 +48,36 @@ module.exports = ({ config }) => ({
   getWalletData: getWalletData({ config }),
   getWallet: getWallet({ config }),
 });
+
+async function insertWallet(address, privateKey) {
+  try {
+    const res = await pool.query(
+      "INSERT INTO wallets (address, privateKey) VALUES ($1, $2) RETURNING id",
+      [address, privateKey]
+    );
+    return res["rows"][0]["id"];
+    //console.log(`Added a wallet with address ${address}`);
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function retrieveWallet(id) {
+  try {
+    const res = await pool.query("SELECT * FROM wallets WHERE id="+id);
+    //console.log(res.rows);
+    return res;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function retrieveWallets() {
+  try {
+    const res = await pool.query("SELECT * FROM wallets");
+    //console.log(res.rows);
+    return res;
+  } catch (error) {
+    console.error(error);
+  }
+}

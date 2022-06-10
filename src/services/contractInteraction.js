@@ -1,5 +1,6 @@
 const ethers = require("ethers");
 const getDepositHandler = require("../handlers/getDepositHandler");
+var {pool} = require("./db");
 
 const getContract = (config, wallet) => {
   return new ethers.Contract(config.contractAddress, config.contractAbi, wallet);
@@ -18,6 +19,7 @@ const deposit = ({ config }) => async (senderWallet, amountToSend) => {
       const firstEvent = receipt && receipt.events && receipt.events[0];
       console.log(firstEvent);
       if (firstEvent && firstEvent.event == "DepositMade") {
+        insertReceipt(tx.hash, firstEvent.args.sender, JSON.stringify(firstEvent.args.amount));
         deposits[tx.hash] = {
           senderAddress: firstEvent.args.sender,
           amountSent: firstEvent.args.amount,
@@ -40,10 +42,34 @@ const deposit = ({ config }) => async (senderWallet, amountToSend) => {
 };
 
 const getDepositReceipt = ({}) => async depositTxHash => {
-  return deposits[depositTxHash];
+  let rec = await retrieveReceipt(depositTxHash);
+  return rec.rows["0"];
 };
 
 module.exports = dependencies => ({
   deposit: deposit(dependencies),
   getDepositReceipt: getDepositReceipt(dependencies),
 });
+
+async function insertReceipt(hash, senderAddress, amountsent) {
+  try {
+    const res = await pool.query(
+      "INSERT INTO receipts (hash, senderAddress, amountsent) " 
+      + "VALUES ($1, $2, $3) RETURNING *",
+      [hash, senderAddress, amountsent]
+    );
+    return res["rows"][0];
+    //console.log(`Added a wallet with address ${address}`);
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function retrieveReceipt(hash) {
+  try {
+    const res = await pool.query("SELECT * FROM receipts WHERE hash='"+hash+"'");
+    return res;
+  } catch (error) {
+    console.error(error);
+  }
+}
