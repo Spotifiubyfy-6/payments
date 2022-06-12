@@ -14,9 +14,7 @@
     "hardhat-deploy-ethers": "0.3.0-beta.7",
     "pg": "^8.7.3",
     "solc": "0.7.4",
-    "dotenv": "8.2.0"
-  },
-  "devDependencies": {
+    "dotenv": "8.2.0",
     "@commitlint/cli": "9.1.2",
     "@commitlint/config-conventional": "12.0.1",
     "@ethersproject/abstract-signer": "5.0.6",
