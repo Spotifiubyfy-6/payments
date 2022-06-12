@@ -2,7 +2,8 @@
   "name": "BasicPayments",
   "version": "1.0.0",
   "engines": {
-    "node": "12.18.1"
+    "node": "12.18.1",
+    "npm": "8.5.5"
   },
   "description": "BasicPayments es un proyecto hecho con fines educativos donde los usuarios pueden crear proyectos que son fundeados por inversores angeles(con inversiones tipo seed o semillas) y cada proyecto tiene asignado un revisor que es el encargado de revisar que el mismo avance. NO USAR EN PRODUCCION!",
   "author": "",
