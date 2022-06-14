@@ -1,15 +1,9 @@
 const ethers = require("ethers");
-const BigNumber = require("bignumber.js");
 const getDepositHandler = require("../handlers/getDepositHandler");
 var {pool} = require("./db");
 
 const getContract = (config, wallet) => {
   return new ethers.Contract(config.contractAddress, config.contractAbi, wallet);
-};
-
-const toWei = number => {
-  const WEIS_IN_ETHER = BigNumber(10).pow(18);
-  return BigNumber(number).times(WEIS_IN_ETHER).toFixed();
 };
 
 const deposits = {};

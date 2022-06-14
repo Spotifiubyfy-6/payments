@@ -18,9 +18,7 @@ const createWallet = () => async (contractInteraction) => {
     address: wallet.address,
     privateKey: wallet.privateKey,
   };
-  console.log("INICIA CARGA DE FONDOS");
   await contractInteraction.chargeWallet(wallet, 0.001);
-  console.log("FIN CARGA DE FONDOS");
   return result;
 };
 
