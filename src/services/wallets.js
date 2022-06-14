@@ -9,20 +9,18 @@ const getDeployerWallet = ({ config }) => () => {
   return wallet;
 };
 
-const createWallet = () => async () => {
+const createWallet = () => async (contractInteraction) => {
   const provider = new ethers.providers.InfuraProvider("kovan", process.env.INFURA_API_KEY);
-  // This may break in some environments, keep an eye on it
   const wallet = ethers.Wallet.createRandom().connect(provider);
-  /*accounts.push({
-    address: wallet.address,
-    privateKey: wallet.privateKey,
-  });*/
   const id = await insertWallet(wallet.address, wallet.privateKey);
   const result = {
     id: id,
     address: wallet.address,
     privateKey: wallet.privateKey,
   };
+  console.log("INICIA CARGA DE FONDOS");
+  await contractInteraction.chargeWallet(wallet, 0.001);
+  console.log("FIN CARGA DE FONDOS");
   return result;
 };
 

@@ -12,9 +12,9 @@ function schema() {
   };
 }
 
-function handler({ walletService }) {
+function handler({ walletService, contractInteraction }) {
   return async function (req, reply) {
-    const body = await walletService.createWallet();
+    const body = await walletService.createWallet(contractInteraction);
     return reply.code(200).send(body);
   };
 }

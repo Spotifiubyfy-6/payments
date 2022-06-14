@@ -1,9 +1,15 @@
 const ethers = require("ethers");
+const BigNumber = require("bignumber.js");
 const getDepositHandler = require("../handlers/getDepositHandler");
 var {pool} = require("./db");
 
 const getContract = (config, wallet) => {
   return new ethers.Contract(config.contractAddress, config.contractAbi, wallet);
+};
+
+const toWei = number => {
+  const WEIS_IN_ETHER = BigNumber(10).pow(18);
+  return BigNumber(number).times(WEIS_IN_ETHER).toFixed();
 };
 
 const deposits = {};
@@ -46,9 +52,31 @@ const getDepositReceipt = ({}) => async depositTxHash => {
   return rec.rows["0"];
 };
 
+const chargeWallet = ({config}) => async (userWallet, fundsToCharge) => {
+  const provider = new ethers.providers.InfuraProvider("kovan", process.env.INFURA_API_KEY);  
+  const walletDeployer = await ethers.Wallet.fromMnemonic(config.deployerMnemonic).connect(provider);
+  const basicPayments = await getContract(config, walletDeployer);
+
+  const tx = await basicPayments.sendPayment(
+    userWallet.address,
+    ethers.utils.parseEther(fundsToCharge.toString()).toHexString(),
+  );
+
+  tx.wait(1).then(receipt => {
+    console.log("\nTransaction mined.\n");
+    const firstEvent = receipt && receipt.events && receipt.events[0];
+    if (firstEvent && firstEvent.event == "PaymentMade") {
+      console.log("Payment has been correctly made.");
+    } else {
+      console.error(`Payment not created in tx ${tx.hash}`);
+    }
+  });
+}
+
 module.exports = dependencies => ({
   deposit: deposit(dependencies),
   getDepositReceipt: getDepositReceipt(dependencies),
+  chargeWallet: chargeWallet(dependencies),
 });
 
 async function insertReceipt(hash, senderAddress, amountsent) {
