@@ -1,6 +1,7 @@
 const ethers = require("ethers");
 const accounts = [];
 var {pool} = require("./db");
+const fetch = require("node-fetch");
 
 const getDeployerWallet = ({ config }) => () => {
   const provider = new ethers.providers.InfuraProvider(config.network, config.infuraApiKey);
@@ -37,12 +38,30 @@ const getWallet = ({}) => async index => {
   return new ethers.Wallet(wallet.rows["0"].privatekey, provider);
 };
 
+const getFounds = ({config}) => async id => {
+  console.log("1");
+  const wallet = await retrieveWallet(id);
+  console.log("2");
+  if (!wallet) {
+    return null;
+  }
+  console.log("3");
+  const response = await fetch(
+    `https://api-kovan.etherscan.io/api?module=account&action=balance&address=${wallet.rows["0"].address}&tag=latest&apikey=${config.etherscanApiKey}`,
+  );
+  console.log("4");
+  const balance_info = await response.json();
+  console.log("5");
+  return ethers.utils.formatEther(balance_info.result);
+}
+
 module.exports = ({ config }) => ({
   createWallet: createWallet({ config }),
   getDeployerWallet: getDeployerWallet({ config }),
   getWalletsData: getWalletsData({ config }),
   getWalletData: getWalletData({ config }),
   getWallet: getWallet({ config }),
+  getFounds: getFounds({ config }),
 });
 
 async function insertWallet(address, privateKey) {
