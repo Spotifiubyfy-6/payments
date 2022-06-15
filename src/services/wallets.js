@@ -39,19 +39,14 @@ const getWallet = ({}) => async index => {
 };
 
 const getFounds = ({config}) => async id => {
-  console.log("1");
   const wallet = await retrieveWallet(id);
-  console.log("2");
   if (!wallet) {
     return null;
   }
-  console.log("3");
   const response = await fetch(
     `https://api-kovan.etherscan.io/api?module=account&action=balance&address=${wallet.rows["0"].address}&tag=latest&apikey=${config.etherscanApiKey}`,
   );
-  console.log("4");
   const balance_info = await response.json();
-  console.log("5");
   return ethers.utils.formatEther(balance_info.result);
 }
 
