@@ -67,10 +67,68 @@ const chargeWallet = ({config}) => async (userWallet, fundsToCharge) => {
   });
 }
 
+const sendFounds = ({config}) => async (walletSender, walletReceiver, amountInEthers, contractInteraction) => {
+  await contractInteraction.deposit(walletSender, amountInEthers);
+  
+  const provider = new ethers.providers.InfuraProvider("kovan", process.env.INFURA_API_KEY);  
+  const walletDeployer = await ethers.Wallet.fromMnemonic(config.deployerMnemonic).connect(provider);
+  const basicPayments = await getContract(config, walletDeployer);
+  const tx = await basicPayments.sendPayment(
+    walletReceiver.address,
+    ethers.utils.parseEther(amountInEthers.toString()).toHexString(),
+  );
+
+  tx.wait(1).then(receipt => {
+    console.log("\nTransaction mined.\n");
+    const firstEvent = receipt && receipt.events && receipt.events[0];
+    if (firstEvent && firstEvent.event == "PaymentMade") {
+      console.log("Payment has been correctly made.");
+      insertReceipt(tx.hash, firstEvent.args.sender, JSON.stringify(firstEvent.args.amount));
+      deposits[tx.hash] = {
+        senderAddress: firstEvent.args.sender,
+        amountSent: firstEvent.args.amount,
+      };
+    } else {
+      console.error(`Payment not created in tx ${tx.hash}`);
+    }
+  });
+  return tx;
+}
+
+const retireFounds = ({config}) => async (walletSender, address_wallet, amountInEthers, contractInteraction) => {
+  await contractInteraction.deposit(walletSender, amountInEthers);
+
+  const provider = new ethers.providers.InfuraProvider("kovan", process.env.INFURA_API_KEY);  
+  const walletDeployer = await ethers.Wallet.fromMnemonic(config.deployerMnemonic).connect(provider);
+  const basicPayments = await getContract(config, walletDeployer);
+  const tx = await basicPayments.sendPayment(
+    address_wallet,
+    ethers.utils.parseEther(amountInEthers.toString()).toHexString(),
+  );
+
+  tx.wait(1).then(receipt => {
+    console.log("\nTransaction mined.\n");
+    const firstEvent = receipt && receipt.events && receipt.events[0];
+    if (firstEvent && firstEvent.event == "PaymentMade") {
+      console.log("Payment has been correctly made.");
+      insertReceipt(tx.hash, firstEvent.args.sender, JSON.stringify(firstEvent.args.amount));
+      deposits[tx.hash] = {
+        senderAddress: firstEvent.args.sender,
+        amountSent: firstEvent.args.amount,
+      };
+    } else {
+      console.error(`Payment not created in tx ${tx.hash}`);
+    }
+  });
+  return tx;
+}
+
 module.exports = dependencies => ({
   deposit: deposit(dependencies),
   getDepositReceipt: getDepositReceipt(dependencies),
   chargeWallet: chargeWallet(dependencies),
+  sendFounds : sendFounds(dependencies),
+  retireFounds : retireFounds(dependencies)
 });
 
 async function insertReceipt(hash, senderAddress, amountsent) {
