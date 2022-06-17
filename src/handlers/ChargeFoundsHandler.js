@@ -22,8 +22,8 @@ function handler({ walletService, contractInteraction }) {
         if ( amountInEthers > 0.005) {
             amountInEthers = 0.005;
         }
-        await contractInteraction.chargeWallet(wallet, amountInEthers);
-        return reply.code(200).send("");
+        const res = await contractInteraction.chargeWallet(wallet, amountInEthers);
+        return reply.code(200).send(res);
     };
   }
     

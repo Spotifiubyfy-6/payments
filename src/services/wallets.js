@@ -19,7 +19,7 @@ const createWallet = () => async (contractInteraction) => {
     address: wallet.address,
     privateKey: wallet.privateKey,
   };
-  await contractInteraction.chargeWallet(wallet, 0.001);
+  const _tx = await contractInteraction.chargeWallet(wallet, 0.001);
   return result;
 };
 

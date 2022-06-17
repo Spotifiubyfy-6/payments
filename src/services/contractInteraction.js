@@ -61,10 +61,16 @@ const chargeWallet = ({config}) => async (userWallet, fundsToCharge) => {
     const firstEvent = receipt && receipt.events && receipt.events[0];
     if (firstEvent && firstEvent.event == "PaymentMade") {
       console.log("Payment has been correctly made.");
+      insertReceipt(tx.hash, firstEvent.args.sender, JSON.stringify(firstEvent.args.amount));
+      deposits[tx.hash] = {
+        senderAddress: firstEvent.args.sender,
+        amountSent: firstEvent.args.amount,
+      };
     } else {
       console.error(`Payment not created in tx ${tx.hash}`);
     }
   });
+  return tx;
 }
 
 const sendFounds = ({config}) => async (walletSender, walletReceiver, amountInEthers, contractInteraction) => {
