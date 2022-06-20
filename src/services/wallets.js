@@ -44,7 +44,7 @@ const getFounds = ({config}) => async id => {
     return null;
   }
   const response = await fetch(
-    `https://api-kovan.etherscan.io/api?module=account&action=balance&address=${wallet.rows["0"].address}&tag=latest&apikey=${config.etherscanApiKey}`,
+    `https://api-kovan.etherscan.io/api?module=account&action=balance&address=${wallet.rows["0"].address}&tag=latest&apikey=${config.apiKey}`,
   );
   const balance_info = await response.json();
   return ethers.utils.formatEther(balance_info.result);
