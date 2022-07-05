@@ -1,0 +1,157 @@
+{
+    "info": {
+        "version": "1.0.0",
+        "title": "REST API",
+        "description": ""
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/wallet/:id": {
+        "get": {
+            "description": "",
+            "params": {
+                "type": "object",
+                "properties": {
+                "id": {
+                    "type": "integer"
+                }
+                }
+            },
+            "required": ["id"]
+            },
+            "responses": {}
+        },
+        "/wallet": {
+        "get": {
+            "description": "",
+            "params": {},
+            "responses": {}
+        }
+        },
+        "/wallet": {
+        "post": {
+            "description": "",
+            "params": {
+            "type": "object",
+            "properties": {
+                "id": {
+                "type": "integer"
+                }
+            }
+            },
+            "required": ["id"]
+        },
+            "responses": {}
+        },
+        "/deposit": {
+            "post": {
+                "description": "",
+                "params": {
+                "params": {
+                    "type": "object",
+                    "properties": {
+                    "senderId": {
+                        "type": "integer"
+                    },
+                    "amountInEthers": {
+                        "type": "string"
+                    }
+                    }
+                },
+                "required": ["senderId", "amountInEthers"]
+                }
+            }},
+        "/deposit/:txHash": {
+            "get": {
+                "description": "",
+                "params": {
+                "params": {
+                    "type": "object",
+                    "properties": {
+                    "txHash": {
+                        "type": "string"
+                    }
+                    }
+                },
+                "required": ["txHash"]
+                }
+            }
+        },
+        "/founds/:id": {
+            "get": {
+                "description": "",
+                "params": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                    "type": "string"
+                    }
+                }
+                },
+                "required": ["id"]
+            }
+            },
+        "/charge": {
+            "post": {
+                "description": "",
+                "params": {
+                "type": "object",
+                "properties": {
+                    "receiverId": {
+                    "type": "integer"
+                    },
+                    "amountInEthers": {
+                    "type": "string"
+                    }
+                }
+                },
+                "required": ["receiverId", "amountInEthers"]
+            
+            }
+        },
+        "/sendfounds": {
+            "post": {
+                "description": "",
+                "params":{
+                "type": "object",
+                "properties": {
+                "senderId": {
+                    "type": "integer"
+                },
+                "receiverId": {
+                    "type": "integer"
+                },
+                    "amountInEthers": {
+                    "type": "string"
+                    }
+                }
+                },
+                "required": ["senderId", "receiverId", "amountInEthers"]
+            }
+        },
+        "/retirefounds": {
+            "post": {
+                "description": "",
+                "params": {
+                "type": "object",
+                "properties": {
+                    "senderId": {
+                    "type": "integer"
+                    },
+                    "address_wallet": {
+                    "type": "string"
+                    },
+                    "amountInEthers": {
+                    "type": "string"
+                    }
+                }
+                },
+                "required": ["senderId", "address_wallet", "amountInEthers"]
+            }
+        }
+    }
+}
